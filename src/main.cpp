@@ -8,6 +8,8 @@ using namespace gadgetlib2;
 using namespace libsnark;
 
 //start: 最简单的一个例子,展示底层的工作流程
+//本例基于libsnark/gadgetlib2目录下的工具类，如Protoboard类、get_variable_assignment_from_gadgetlib2方法等
+//和libsnark/gadgetlib1目录下也有类似的工具类，但实现风格不太一样。
 int very_easy_sample()
 {
 	typedef libff::Fr<libff::default_ec_pp> FieldT;	
@@ -20,19 +22,14 @@ int very_easy_sample()
 	//1. end
 	
 	//2.生成约束。约束内容:a*(5+c) == d 且 b == d. NOTE:生成约束的过程任何人都可以做，约束本身是公开的
-	// The protoboard is the 'memory manager' which holds all constraints (when creating the
-	// verifying circuit) and variable assignments (when creating the proof witness). We specify
-	// the type as R1P, this can be augmented in the future to allow for BOOLEAN or GF2_EXTENSION
-	// fields in the future.
 	ProtoboardPtr pb = Protoboard::create(R1P);
-	// We now create 3 input variables and one output
-	VariableArray input(3, "input");//Variable内部有索引,按照生成顺序进行排序
+	//新建变量。NOTE://Variable内部有索引,按照生成顺序进行排序, 即input[0]、input[1]、inpt[2]、output的顺序
+	VariableArray input(3, "input");
 	Variable output("output");
-	// We can now add some constraints. The string is for debugging purposes and can be a textual
-	// description of the constraint
+	//添加一个乘法约束:input[0]*(5+input[2]) == output，第三个参数是注释字符串，可不填
 	pb->addRank1Constraint(input[0], 5 + input[2], output,
 			"Constraint 1: input[0] * (5 + input[2]) == output");
-	// The second form addUnaryConstraint(LinearCombination) means (LinearCombination == 0).
+	//添加一个必须为0的约束:input[1] - output == 0，第三个参数是注释字符串，可不填
 	pb->addUnaryConstraint(input[1] - output,
 			"Constraint 2: input[1] - output == 0");
 	//转换成libsnark可识别的约束系统
@@ -52,7 +49,7 @@ int very_easy_sample()
 	//4. end
 
         //5. 证明者将赋值做一些转化	
-	//将第四步的赋值提取出来，并做一定的转化
+	//将第四步的赋值从pb中提取出来，并做一定的转化
 	const r1cs_variable_assignment<FieldT> full_assignment = get_variable_assignment_from_gadgetlib2(*pb);
 	/* 也可以直接对full_assignment进行赋值，赋值顺序匹配索引顺序
 	r1cs_variable_assignment<FieldT> full_assignment;
@@ -73,11 +70,11 @@ int very_easy_sample()
 	assert(cs.is_satisfied(primary_input, auxiliary_input));
 
 	//6. 证明者生成证明	
-	//证明者:生成证明，输入：pk、公开输入、秘密输入
+	//证明者:生成证明，输入：pk、公开输入、秘密输入. pk对象中已包含约束
 	r1cs_ppzksnark_proof<ppT> proof = r1cs_ppzksnark_prover<ppT>(keypair.pk, primary_input, auxiliary_input);	
 	//6. end
 	
-	//7. 验证者进行验证，输入：vk、公开的输入、证明
+	//7. 验证者进行验证，输入：vk、公开的输入、证明. vk对象中已包含约束
 	const bool ans = r1cs_ppzksnark_verifier_strong_IC<ppT>(keypair.vk, primary_input, proof);
 	printf("* The verification result is: %s\n", (ans ? "PASS" : "FAIL"));
 	/* 另一个验证方法，和上面验证方法的结果应该一致
