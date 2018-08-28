@@ -9,7 +9,7 @@ using namespace libsnark;
 
 //start: 最简单的一个例子,展示底层的工作流程
 //本例基于libsnark/gadgetlib2目录下的工具类，如Protoboard类、get_variable_assignment_from_gadgetlib2方法等
-//和libsnark/gadgetlib1目录下也有类似的工具类，但实现风格不太一样。
+//libsnark/gadgetlib1目录下也有类似的工具类，但实现风格不太一样。
 int very_easy_sample()
 {
 	typedef libff::Fr<libff::default_ec_pp> FieldT;	
