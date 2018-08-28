@@ -42,7 +42,7 @@ int very_easy_sample()
 	//vk再处理
 	r1cs_ppzksnark_processed_verification_key<ppT> pvk = r1cs_ppzksnark_verifier_process_vk<ppT>(keypair.vk);
 
-	//4. 证明者提供可以满足约束的赋值. NOTE:证明者需要先拿到第二步的产生的约束
+	//4. 证明者提供可以满足约束的赋值.
 	pb->val(input[2]) = 37; // 1 * (5 + 37) == 42
 	pb->val(input[0]) = 1;
 	pb->val(input[1]) = pb->val(output) = 42; // input[1] - output == 0
