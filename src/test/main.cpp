@@ -27,7 +27,7 @@ TEST(sha256_two_to_one_hash_gadget, zsSNARK_sha256_sample)
 
 	EXPECT_TRUE(pb.is_satisfied());
 }
-//下面，我们使用sha256_two_to_one_hash_gadget的另一个构造函数，不仅自定义new block，还自定义pre output
+//下面，我们使用sha256_two_to_one_hash_gadget的另一个构造函数(这个构造函数是自己加的)，不仅自定义new block，还自定义pre output
 TEST(sha256_two_to_one_hash_gadget, custom_two_value_and_one_is_default)
 {
 	typedef libff::Fr<libff::default_ec_pp> FieldT;
@@ -57,7 +57,7 @@ TEST(sha256_two_to_one_hash_gadget, custom_two_value_and_one_is_default)
 	EXPECT_TRUE(pb.is_satisfied());
 }
 
-//very good，下面我们可以试试计算sha(1)，手动填充sha256的附加长度
+//very good，下面我们可以试试计算sha(1)，需要我们手动填充sha256的附加长度
 //sha256(1) == 0x6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b
 //求1的哈希，只需计算一轮
 TEST(sha256_two_to_one_hash_gadget, check_1_hash)
@@ -73,6 +73,12 @@ TEST(sha256_two_to_one_hash_gadget, check_1_hash)
 	//变量就位
         const std::string prefix = "f";
 	sha256_two_to_one_hash_gadget<FieldT> f(pb,pre_output,new_block,expect_output,prefix);
+
+	std::cout<<"num_variables:"<<pb.num_variables()<<std::endl;
+	std::cout<<pb.auxiliary_input().size()<<std::endl;
+	std::cout<<pb.primary_input().size()<<std::endl;
+
+
 	//构建约束
 	f.generate_r1cs_constraints();
 
@@ -83,17 +89,17 @@ TEST(sha256_two_to_one_hash_gadget, check_1_hash)
 								0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x8}, 32);
 	new_block.generate_r1cs_witness(block_content); // new block
 	f.generate_r1cs_witness();
-
-	const libff::bit_vector expect_content = libff::int_list_to_bits({0x6b86b273,0xff34fce1,0x9d6b804e,0xff5a3f57,0x47ada4ea,0xa22f1d49,0xc01e52dd,0xb7875b4b}, 32);
 	
-	expect_output.generate_r1cs_witness(expect_content); //expect_output
+	//不是必须，f.generate_r1cs_witness()已经对expect_output进行了赋值
+	//const libff::bit_vector expect_content = libff::int_list_to_bits({0x6b86b273,0xff34fce1,0x9d6b804e,0xff5a3f57,0x47ada4ea,0xa22f1d49,0xc01e52dd,0xb7875b4b}, 32);
+	//expect_output.generate_r1cs_witness(expect_content); //expect_output
 
-	/*	
+	/*打印pb中的values
 	std::cout<<pb.auxiliary_input().size()<<std::endl;
 	std::cout<<pb.primary_input().size()<<std::endl;
 	std::cout<<"start"<<std::endl;
 	std::cout<<pb.full_variable_assignment()<<std::endl;
-	std::cout<<"end"<<std::endl;
+	std::cout<<"end2"<<std::endl;
 	*/
 	
 	EXPECT_TRUE(pb.is_satisfied());
