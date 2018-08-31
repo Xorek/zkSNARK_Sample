@@ -1,20 +1,20 @@
 include_directories(.)
 
 add_executable(
-  main
-  easy_sample.cpp
+  UT_test 
+  test_pb_variable.cpp
   main.cpp
 )
 target_link_libraries(
-  main
-
+  UT_test
   snark
+  gtest_main
 )
 target_include_directories(
-  main
+  UT_test
 
   PUBLIC
   ${DEPENDS_DIR}/libsnark
   ${DEPENDS_DIR}/libsnark/depends/libfqfft
 )
-add_subdirectory(test)
+

@@ -13,7 +13,7 @@
 
 #ifndef SHA256_GADGET_TCC_
 #define SHA256_GADGET_TCC_
-
+#define DEBUG
 namespace libsnark {
 
 template<typename FieldT>
@@ -176,6 +176,18 @@ sha256_two_to_one_hash_gadget<FieldT>::sha256_two_to_one_hash_gadget(protoboard<
     assert(block_length == SHA256_block_size);
     assert(input_block.bits.size() == block_length);
     f.reset(new sha256_compression_function_gadget<FieldT>(pb, SHA256_default_IV<FieldT>(pb), input_block.bits, output, FMT(this->annotation_prefix, " f")));
+}
+template<typename FieldT>
+sha256_two_to_one_hash_gadget<FieldT>::sha256_two_to_one_hash_gadget(protoboard<FieldT> &pb,
+		    		  				     const pb_linear_combination_array<FieldT> &pre_output,
+                                                                     const block_variable<FieldT> &input_block,
+                                                                     const digest_variable<FieldT> &output,
+                                                                     const std::string &annotation_prefix) :
+    gadget<FieldT>(pb, annotation_prefix)
+{
+    assert(pre_output.bits.size() == SHA256_digest_size);
+    assert(input_block.bits.size() == SHA256_block_size);
+    f.reset(new sha256_compression_function_gadget<FieldT>(pb, pre_output, input_block.bits, output, FMT(this->annotation_prefix, " f")));
 }
 
 template<typename FieldT>

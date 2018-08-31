@@ -81,6 +81,12 @@ public:
                                   const digest_variable<FieldT> &output,
                                   const std::string &annotation_prefix);
 
+    sha256_two_to_one_hash_gadget(protoboard<FieldT> &pb,
+		    		  const pb_linear_combination_array<FieldT> &pre_output,
+                                  const block_variable<FieldT> &input_block,
+                                  const digest_variable<FieldT> &output,
+                                  const std::string &annotation_prefix);
+
     void generate_r1cs_constraints(const bool ensure_output_bitness=true); // TODO: ignored for now
     void generate_r1cs_witness();
 
